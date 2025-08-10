@@ -1,25 +1,47 @@
 name: java-ci.yml
+
 on:
   push:
     branches:
       - main
   pull_request:
-    branches:
-      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      # NOTE: Checkout code
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up JDK 17
+      # NOTE: Cache Maven dependencies to speed up builds
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # NOTE: Set up Java 17
+      - name: Set up Java
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'microsoft'
 
-      - name: Build with Maven
-        run: mvn clean install
+      # NOTE: Build with Maven and run tests
+      - name: Build and test with Maven
+        run: mvn clean package
+
+      # NOTE: Rename JAR to fixed name
+      - name: Rename JAR
+        run: mv target/*.jar target/ddditserver.jar
+
+      # NOTE:  Upload the artifact
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ddditserver
+          path: target/ddditserver.jar
