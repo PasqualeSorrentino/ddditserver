@@ -18,6 +18,7 @@ jobs:
         with:
           name: ddditserver
           path: .
+          run-id: ${{ github.event.workflow_run.id }}
 
       #NOTE: Show download directory
       - name: Debug download directory contents
