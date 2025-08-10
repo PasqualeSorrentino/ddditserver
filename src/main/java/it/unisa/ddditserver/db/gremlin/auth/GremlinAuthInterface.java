@@ -1,4 +1,4 @@
-package it.unisa.ddditserver.db.gremlin;
+package it.unisa.ddditserver.db.gremlin.auth;
 
 import it.unisa.ddditserver.auth.dto.UserDTO;
 
