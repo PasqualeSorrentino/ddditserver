@@ -9,5 +9,4 @@ public class DdditserverApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(DdditserverApplication.class, args);
 	}
-
 }
