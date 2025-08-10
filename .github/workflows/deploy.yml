@@ -1,8 +1,8 @@
-name: deploy.yml
+name: CD
 
 on:
   workflow_run:
-    workflows: [ "java-ci.yml" ]
+    workflows: [ "CI" ]
     types:
       - completed
 
@@ -15,6 +15,12 @@ jobs:
       actions: read
 
     steps:
+      # NOTE: Show workflow_run.id to check if thew previous workflow is the CI workflow
+      - name: Show workflow run ID
+        run:
+          echo "Workflow run ID: ${{ github.event.workflow_run.id }}"
+
+
       # NOTE: Download JAR artifact
       - name: Download JAR artifact
         uses: actions/download-artifact@v4
@@ -29,14 +35,13 @@ jobs:
 
 
         # NOTE: Copy the JAR into VM folder
-      - name: Copy JAR to Azure VM
-        uses: appleboy/scp-action@v0.1.7
+      - name: Download JAR artifact
+        uses: actions/download-artifact@v4
         with:
-          host: ${{ secrets.AZURE_VM_HOST }}
-          username: ${{ secrets.AZURE_VM_USER }}
-          key: ${{ secrets.AZURE_VM_SSH_KEY }}
-          source: "./ddditserver.jar"
-          target: "/home/${{ secrets.AZURE_VM_USER }}/app/"
+          name: ddditserver
+          path: .
+          run-id: ${{ github.event.workflow_run.id }}
+        continue-on-error: true
 
       # NOTE: Restart automatically the service on VM
       - name: Restart service

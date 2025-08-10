@@ -1,4 +1,4 @@
-name: java-ci.yml
+name: CI
 
 on:
   push:
