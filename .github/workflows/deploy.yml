@@ -26,7 +26,7 @@ jobs:
           host: ${{ secrets.AZURE_VM_HOST }}
           username: ${{ secrets.AZURE_VM_USER }}
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
-          source: "ddditserver.jar"
+          source: "./ddditserver.jar"
           target: "/home/${{ secrets.AZURE_VM_USER }}/app/"
 
       # NOTE: Restart automatically the service on VM
