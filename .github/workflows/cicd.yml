@@ -9,6 +9,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GREMLIN_ENDPOINT: ${{ secrets.GREMLIN_ENDPOINT }}
+      GREMLIN_USERNAME: ${{ secrets.GREMLIN_USERNAME }}
+      GREMLIN_KEY: ${{ secrets.GREMLIN_KEY }}
+
+      COSMOS_SQL_ENDPOINT: ${{ secrets.COSMOS_SQL_ENDPOINT }}
+      COSMOS_SQL_KEY: ${{ secrets.COSMOS_SQL_KEY }}
+      COSMOS_SQL_DATABASE: ${{ secrets.COSMOS_SQL_DATABASE }}
+      COSMOS_SQL_CONTAINER: ${{ secrets.COSMOS_SQL_CONTAINER }}
+
+      BLOB_STORAGE_CONNECTION_STRING: ${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}
+      BLOB_STORAGE_CONTAINER_MESHES: ${{ secrets.BLOB_STORAGE_CONTAINER_MESHES }}
+      BLOB_STORAGE_CONTAINER_MATERIALS: ${{ secrets.BLOB_STORAGE_CONTAINER_MATERIALS }}
 
     steps:
       - name: Checkout code
