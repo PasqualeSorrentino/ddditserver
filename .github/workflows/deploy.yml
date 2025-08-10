@@ -19,7 +19,12 @@ jobs:
           name: ddditserver
           path: .
 
-      # NOTE: Copy the JAR into VM folder
+      #NOTE: Show download directory
+      - name: Debug download directory contents
+        run: ls -lR .
+
+
+        # NOTE: Copy the JAR into VM folder
       - name: Copy JAR to Azure VM
         uses: appleboy/scp-action@v0.1.7
         with:

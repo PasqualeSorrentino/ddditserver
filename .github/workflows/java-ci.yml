@@ -45,3 +45,7 @@ jobs:
         with:
           name: ddditserver
           path: target/ddditserver.jar
+
+      # NOTE: Show upload directory
+      - name: Debug upload directory contents
+        run: ls -lR target
