@@ -17,7 +17,7 @@ jobs:
     steps:
       # NOTE: Show workflow_run.id to check if thew previous workflow is the CI workflow
       - name: Show workflow run ID
-        run:
+        run: |
           echo "Workflow run ID: ${{ github.event.workflow_run.id }}"
 
 
