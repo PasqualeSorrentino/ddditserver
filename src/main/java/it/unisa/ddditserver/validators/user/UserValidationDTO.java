@@ -1,4 +1,4 @@
-package it.unisa.ddditserver.validators.implementations.user;
+package it.unisa.ddditserver.validators.user;
 import lombok.Value;
 
 /**
