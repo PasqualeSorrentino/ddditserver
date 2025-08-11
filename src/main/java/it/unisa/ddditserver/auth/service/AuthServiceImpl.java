@@ -93,12 +93,12 @@ public class AuthServiceImpl implements AuthService {
             throw new LoggedUserException(validationResult.getMessage());
         }
 
+        UserValidationDTO userValidationDTO = new UserValidationDTO(user.getUsername(), user.getPassword());
+
         String username = user.getUsername();
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String hashedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(hashedPassword);
-
-        UserValidationDTO userValidationDTO = new UserValidationDTO(user.getUsername(), user.getPassword());
 
         // Check if user's credentials are well-formed
         validationResult = userValidator.validateCredentials(userValidationDTO);
