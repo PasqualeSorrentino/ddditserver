@@ -48,6 +48,7 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @Override
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserDTO user, HttpServletRequest request) {
         // Retrieve of token if it exists
         String bearerToken = request.getHeader("Authorization");
