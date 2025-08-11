@@ -12,12 +12,14 @@ import it.unisa.ddditserver.auth.dto.UserDTO;
 public interface GremlinAuthService {
     /**
      * Saves a new user vertex in the graph database.
+     *
      * @param user the UserDTO containing user information
      */
     void saveUser(UserDTO user);
 
     /**
      * Finds a user vertex by username.
+     *
      * @param username the username to search for
      * @return UserDTO if found, null otherwise
      */
@@ -25,6 +27,7 @@ public interface GremlinAuthService {
 
     /**
      * Checks if a user with the specified username exists.
+     *
      * @param username the username to check
      * @return true if user exists, false otherwise
      */
