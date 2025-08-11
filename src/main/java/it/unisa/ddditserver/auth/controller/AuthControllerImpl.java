@@ -22,7 +22,7 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody UserDTO user, HttpServletRequest request) {
+    public ResponseEntity<Map<String, String>> signup(@RequestBody UserDTO user, HttpServletRequest request) {
         // Retrieve of token if it exists
         String bearerToken = request.getHeader("Authorization");
         String token = null;
@@ -49,7 +49,7 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserDTO user, HttpServletRequest request) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody UserDTO user, HttpServletRequest request) {
         // Retrieve of token if it exists
         String bearerToken = request.getHeader("Authorization");
         String token = null;
@@ -75,7 +75,7 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request) {
+    public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
         // Retrieve of token
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
