@@ -8,4 +8,5 @@ import lombok.*;
 public class BlacklistedTokenDTO {
     private String id;
     private String tokenId;
+    private Integer ttl;
 }
