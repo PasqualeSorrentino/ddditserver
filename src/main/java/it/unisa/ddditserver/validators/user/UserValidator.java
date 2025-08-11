@@ -4,10 +4,6 @@ import it.unisa.ddditserver.validators.ValidationResult;
 
 /**
  * Interface for validating user's data.
- * <p>
- * This interface provides methods to validate user's credentials and
- * to check for the existence of a user.
- * </p>
  *
  * @author Angelo Antonio Prisco
  * @version 1.2
