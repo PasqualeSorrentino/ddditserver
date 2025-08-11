@@ -30,7 +30,7 @@ public class AuthServiceImpl implements AuthService {
     private UserValidator userValidator;
 
     @Value("${JWT_SECRET}")
-    private String jwtSecretBase64;
+    public String jwtSecretBase64;
 
     private SecretKey secretKey;
 
@@ -75,7 +75,7 @@ public class AuthServiceImpl implements AuthService {
         // Check UserValidator interface for more information about the exists flag
         validationResult = userValidator.validateExistence(userValidationDTO, false);
         if (!validationResult.isValid()) {
-            throw new InvalidCredentialsException(validationResult.getMessage());
+            throw new ExistingUserException(validationResult.getMessage());
         }
 
         // Save user's information on graph database and generate a JWT token for authentication
