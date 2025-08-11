@@ -114,7 +114,9 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // Check if the password given by the user match with the password stored in graph database
-        validationResult = userValidator.validateMatchingPasswords(userValidationDTO);
+        // There's the need to create a new DTO because UserValidationDTO is immutable
+        UserValidationDTO hashedUserValidationDTO = new UserValidationDTO(username, hashedPassword);
+        validationResult = userValidator.validateMatchingPasswords(hashedUserValidationDTO);
         if (!validationResult.isValid()) {
             throw new PasswordsMismatchException(validationResult.getMessage());
         }
