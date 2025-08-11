@@ -11,7 +11,7 @@ package it.unisa.ddditserver.auth.exceptions;
  * @version 1.0
  * @since 2025-08-11
  */
-public class PasswordsMismatchException extends RuntimeException {
+public class PasswordsMismatchException extends AuthException  {
     public PasswordsMismatchException(String message) {
         super(message);
     }
