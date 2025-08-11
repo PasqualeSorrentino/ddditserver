@@ -41,7 +41,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private String generateToken(String username) {
-        long expirationMillis = 1000 * 60 * 1440; // 24 hours
+        long expirationMillis = 1000 * 60 * 480; // 8 hours
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
@@ -136,6 +136,7 @@ public class AuthServiceImpl implements AuthService {
         if (token == null || token.isEmpty()) {
             throw new AuthException("Missing token for logout");
         }
+
         try {
             cosmosAuthService.blacklistToken(token);
         } catch(Exception e){
