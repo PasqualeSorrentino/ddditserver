@@ -1,5 +1,6 @@
 package it.unisa.ddditserver.validators.user;
 
+import it.unisa.ddditserver.auth.dto.UserDTO;
 import it.unisa.ddditserver.db.gremlin.auth.GremlinAuthService;
 import it.unisa.ddditserver.validators.ValidationResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +16,14 @@ import java.util.regex.Pattern;
  * <ul>
  *     <li>Username must be 3-30 characters long, containing only letters, digits, underscores, and dots.</li>
  *     <li>Password must be 8-50 characters long and include at least one uppercase letter, one lowercase letter,
- *     one digit, and one special character.</li>
+ *         one digit, and one special character.</li>
+ *     <li>Existence of the user in the graph database.</li>
+ *     <li>Matching passwords given and the one stored in the graph database.</li>
+ *     <li>Current session status of the user.</li>
  * </ul>
  *
  * @author Angelo Antonio Prisco
- * @version 1.0
+ * @version 1.1
  * @since 2025-08-11
  */
 @Component
@@ -72,6 +76,25 @@ public class UserValidatorImpl implements UserValidator {
     public ValidationResult validateExistence(UserValidationDTO userValidationDTO) {
         if (gremlinService.existsByUsername(userValidationDTO.getUsername())) {
             return ValidationResult.invalid("Username already exists");
+        }
+        return ValidationResult.valid();
+    }
+
+    @Override
+    public ValidationResult validateMatchingPasswords(UserValidationDTO userValidationDTO) {
+        String hashedPassword = userValidationDTO.getPassword();
+        UserDTO retrievedUser = gremlinService.findByUsername(userValidationDTO.getUsername());
+
+        if (!retrievedUser.getPassword().equals(hashedPassword)) {
+            return ValidationResult.invalid("Given password does not match");
+        }
+        return ValidationResult.valid();
+    }
+
+    @Override
+    public ValidationResult validateLoggedStatus(String token) {
+        if (token != null && !token.isEmpty()) {
+            return ValidationResult.invalid("User is already logged in.");
         }
         return ValidationResult.valid();
     }
