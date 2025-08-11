@@ -16,6 +16,9 @@ public class CosmosConfig {
     @Value("${COSMOS_SQL_DATABASE}")
     private String databaseName;
 
-    @Value("${COSMOS_SQL_CONTAINER}")
-    private String containerName;
+    @Value("${COSMOS_SQL_CONTAINER_VERSIONS}")
+    private String versionsContainerName;
+
+    @Value("${COSMOS_SQL_CONTAINER_TOKEN_BLACKLIST}")
+    private String tokenBlacklistContainerName;
 }
