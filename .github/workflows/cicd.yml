@@ -23,6 +23,8 @@ jobs:
       BLOB_STORAGE_CONTAINER_MESHES: ${{ secrets.BLOB_STORAGE_CONTAINER_MESHES }}
       BLOB_STORAGE_CONTAINER_MATERIALS: ${{ secrets.BLOB_STORAGE_CONTAINER_MATERIALS }}
 
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
