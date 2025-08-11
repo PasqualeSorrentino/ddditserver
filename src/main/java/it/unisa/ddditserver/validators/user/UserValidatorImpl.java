@@ -4,6 +4,7 @@ import it.unisa.ddditserver.auth.dto.UserDTO;
 import it.unisa.ddditserver.db.gremlin.auth.GremlinAuthService;
 import it.unisa.ddditserver.validators.ValidationResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import java.util.regex.Pattern;
 
@@ -94,7 +95,8 @@ public class UserValidatorImpl implements UserValidator {
         String storedPassword = retrievedUser.getPassword();
         String providedPassword = userValidationDTO.getPassword();
 
-        if (storedPassword == null || !storedPassword.equals(providedPassword)) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        if (!passwordEncoder.matches(providedPassword, storedPassword)) {
             return ValidationResult.invalid("Given password does not match");
         }
 
