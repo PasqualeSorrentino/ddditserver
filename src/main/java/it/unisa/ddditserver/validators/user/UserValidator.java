@@ -10,7 +10,7 @@ import it.unisa.ddditserver.validators.ValidationResult;
  * </p>
  *
  * @author Angelo Antonio Prisco
- * @version 1.1
+ * @version 1.2
  * @since 2025-08-11
  */
 public interface UserValidator {
@@ -26,9 +26,10 @@ public interface UserValidator {
      * Validates whether the user exists.
      *
      * @param userValidationDTO the user data transfer object containing user's information to validate
+     * @param exists define the kind of validation to perform, if it is true then the method consider the validation passed only if the user exists, false otherwise
      * @return a ValidationResult indicating if the user exists or not, including an optional message
      */
-    ValidationResult validateExistence(UserValidationDTO userValidationDTO);
+    ValidationResult validateExistence(UserValidationDTO userValidationDTO, boolean exists);
 
     /**
      * Validates if the provided password and the one stored in the database match.

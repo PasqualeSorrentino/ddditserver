@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  * </ul>
  *
  * @author Angelo Antonio Prisco
- * @version 1.1
+ * @version 1.2
  * @since 2025-08-11
  */
 @Component
@@ -73,9 +73,16 @@ public class UserValidatorImpl implements UserValidator {
         return ValidationResult.valid();
     }
 
-    public ValidationResult validateExistence(UserValidationDTO userValidationDTO) {
-        if (gremlinService.existsByUsername(userValidationDTO.getUsername())) {
-            return ValidationResult.invalid("Username already exists");
+    public ValidationResult validateExistence(UserValidationDTO userValidationDTO, boolean exists) {
+        if (exists) {
+            if (!gremlinService.existsByUsername(userValidationDTO.getUsername())) {
+                return ValidationResult.invalid("Username does not exist");
+            }
+        }
+        else {
+            if (gremlinService.existsByUsername(userValidationDTO.getUsername())) {
+                return ValidationResult.invalid("Username already exists");
+            }
         }
         return ValidationResult.valid();
     }
@@ -94,7 +101,7 @@ public class UserValidatorImpl implements UserValidator {
     @Override
     public ValidationResult validateLoggedStatus(String token) {
         if (token != null && !token.isEmpty()) {
-            return ValidationResult.invalid("User is already logged in.");
+            return ValidationResult.invalid("User is already logged in");
         }
         return ValidationResult.valid();
     }
