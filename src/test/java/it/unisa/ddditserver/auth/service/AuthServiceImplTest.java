@@ -1,5 +1,6 @@
 package it.unisa.ddditserver.auth.service;
 
+import io.jsonwebtoken.security.Keys;
 import it.unisa.ddditserver.auth.dto.UserDTO;
 import it.unisa.ddditserver.auth.exceptions.*;
 import it.unisa.ddditserver.db.cosmos.auth.CosmosAuthService;
@@ -11,7 +12,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+
+import javax.crypto.SecretKey;
+import java.lang.reflect.Field;
+import java.util.Base64;
 import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -32,8 +38,16 @@ public class AuthServiceImplTest {
     private AuthServiceImpl authService;
 
     @BeforeEach
-    public void setUp() {
-        authService.jwtSecretBase64 = "NnUvMZ1Gz5QJyN5IM2H5wJrR2yxUd+ZmBPtZ/jZJChA=";
+    public void setUp() throws Exception {
+        authService = new AuthServiceImpl();
+
+        SecretKey key = Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256);
+        String base64Key = Base64.getEncoder().encodeToString(key.getEncoded());
+
+        Field secretField = AuthServiceImpl.class.getDeclaredField("jwtSecretBase64");
+        secretField.setAccessible(true);
+        secretField.set(authService, base64Key);
+
         authService.init();
     }
 
