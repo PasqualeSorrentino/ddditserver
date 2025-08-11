@@ -3,7 +3,7 @@ package it.unisa.ddditserver.auth.exceptions;
 /**
  * Exception thrown when the provided passwords do not match.
  *
- * This exception extends {@link RuntimeException} and indicates
+ * This exception extends {@link AuthException} and indicates
  * that during the user log in operation the given password
  * differs from the one stored in the graph database.
  *
