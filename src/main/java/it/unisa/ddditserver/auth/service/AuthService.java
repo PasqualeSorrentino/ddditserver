@@ -30,5 +30,13 @@ public interface AuthService {
      * @return a ResponseEntity containing a map with relevant response data, such as a JWT token
      */
     ResponseEntity<Map<String, String>> login(UserDTO user, String token);
+
+    /**
+     * Execute the logout of a user and revoke his token.
+     *
+     * @param token the authentication token
+     * @return a ResponseEntity containing a map with relevant response data, such as the result of the operation
+     */
+    ResponseEntity<Map<String, String>> logout(String token);
 }
 

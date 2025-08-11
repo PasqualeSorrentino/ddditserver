@@ -4,6 +4,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import it.unisa.ddditserver.auth.dto.UserDTO;
 import it.unisa.ddditserver.auth.exceptions.*;
+import it.unisa.ddditserver.db.cosmos.auth.CosmosAuthService;
 import it.unisa.ddditserver.db.gremlin.auth.GremlinAuthService;
 import it.unisa.ddditserver.validators.ValidationResult;
 import it.unisa.ddditserver.validators.user.UserValidationDTO;
@@ -23,6 +24,8 @@ import java.util.Map;
 public class AuthServiceImpl implements AuthService {
     @Autowired
     private GremlinAuthService gremlinService;
+    @Autowired
+    private CosmosAuthService cosmosAuthService;
     @Autowired
     private UserValidator userValidator;
 
@@ -81,7 +84,7 @@ public class AuthServiceImpl implements AuthService {
             token = generateToken(username);
             return ResponseEntity.ok(Map.of("token", token));
         } catch (Exception e) {
-            throw new AuthException("Signup failed during saving's operations on database");
+            throw new AuthException(e.getMessage());
         }
     }
 
@@ -126,5 +129,19 @@ public class AuthServiceImpl implements AuthService {
         } catch (Exception e) {
             throw new AuthException("Login failed during token generation");
         }
+    }
+
+    @Override
+    public ResponseEntity<Map<String, String>> logout(String token) throws AuthException {
+        if (token == null || token.isEmpty()) {
+            throw new AuthException("Missing token for logout");
+        }
+        try {
+            cosmosAuthService.blacklistToken(token);
+        } catch(Exception e){
+            throw new AuthException(e.getMessage());
+        }
+
+        return ResponseEntity.ok(Map.of("message", "Logout successful, token blacklisted"));
     }
 }
