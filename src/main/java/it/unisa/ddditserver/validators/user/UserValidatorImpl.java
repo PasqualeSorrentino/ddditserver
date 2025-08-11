@@ -89,12 +89,15 @@ public class UserValidatorImpl implements UserValidator {
 
     @Override
     public ValidationResult validateMatchingPasswords(UserValidationDTO userValidationDTO) {
-        String hashedPassword = userValidationDTO.getPassword();
         UserDTO retrievedUser = gremlinService.findByUsername(userValidationDTO.getUsername());
 
-        if (!retrievedUser.getPassword().equals(hashedPassword)) {
+        String storedPassword = retrievedUser.getPassword();
+        String providedPassword = userValidationDTO.getPassword();
+
+        if (storedPassword == null || !storedPassword.equals(providedPassword)) {
             return ValidationResult.invalid("Given password does not match");
         }
+
         return ValidationResult.valid();
     }
 
