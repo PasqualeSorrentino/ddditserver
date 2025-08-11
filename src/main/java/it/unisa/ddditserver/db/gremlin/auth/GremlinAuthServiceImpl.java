@@ -1,6 +1,7 @@
 package it.unisa.ddditserver.db.gremlin.auth;
 
 import it.unisa.ddditserver.auth.dto.UserDTO;
+import it.unisa.ddditserver.auth.exceptions.AuthException;
 import it.unisa.ddditserver.db.gremlin.GremlinConfig;
 import jakarta.annotation.PostConstruct;
 import org.apache.tinkerpop.gremlin.driver.Client;
@@ -10,6 +11,7 @@ import org.apache.tinkerpop.gremlin.driver.ResultSet;
 import org.apache.tinkerpop.gremlin.driver.ser.Serializers;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -54,10 +56,6 @@ public class GremlinAuthServiceImpl implements GremlinAuthService {
         this.client = cluster.connect();
     }
 
-    /**
-     * Saves a new user vertex in the graph database.
-     * @param user the UserDTO containing user information
-     */
     @Override
     public void saveUser(UserDTO user) {
         // Use Gremlin query to add a vertex with label 'user' and properties
@@ -78,18 +76,14 @@ public class GremlinAuthServiceImpl implements GremlinAuthService {
                     )
             ).all().get();
         } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException("Error saving user to Gremlin DB", e);
+            // If it is necessary use a RuntimeException for more detailed debug
+            throw new AuthException("Error saving user to Gremlin DB");
         }
     }
 
-    /**
-     * Finds a user vertex by username.
-     * @param username the username to search for
-     * @return UserDTO if found, null otherwise
-     */
     @Override
     public UserDTO findByUsername(String username) {
-        String query = "g.V().hasLabel('user').has('username', username).limit(1)";
+        String query = "g.V().hasLabel('user').has('username', username).limit(1).valueMap()"; // Modifica qui
         try {
             ResultSet results = client.submit(query, java.util.Map.of("username", username));
             List<Result> list = results.all().get();
@@ -97,23 +91,22 @@ public class GremlinAuthServiceImpl implements GremlinAuthService {
                 return null;
             }
 
-            // Extract properties from the vertex map
-            var vertex = list.get(0).getVertex();
+            Map<String, Object> vertexMap = (Map<String, Object>) list.get(0).getObject();
+
+            String retrievedUsername = ((List<String>) vertexMap.get("username")).get(0);
+            String retrievedPassword = ((List<String>) vertexMap.get("password")).get(0);
+
             UserDTO user = new UserDTO();
-            user.setUsername(vertex.property("username").value().toString());
-            user.setPassword(vertex.property("password").value().toString());
+            user.setUsername(retrievedUsername);
+            user.setPassword(retrievedPassword);
             return user;
 
         } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException("Error finding user by username in Gremlin DB", e);
+            // If it is necessary use a RuntimeException for more detailed debug
+            throw new AuthException("Error finding user by username in Gremlin DB");
         }
     }
 
-    /**
-     * Checks if a user with the specified username exists.
-     * @param username the username to check
-     * @return true if user exists, false otherwise
-     */
     @Override
     public boolean existsByUsername(String username) {
         String query = "g.V().hasLabel('user').has('username', username).count()";
@@ -122,7 +115,8 @@ public class GremlinAuthServiceImpl implements GremlinAuthService {
             Long count = results.one().getLong();
             return count != null && count > 0;
         } catch (Exception e) {
-            throw new RuntimeException("Error checking user existence in Gremlin DB", e);
+            // If it is necessary use a RuntimeException for more detailed debug
+            throw new AuthException("Error checking user existence in Gremlin DB");
         }
     }
 }
