@@ -59,7 +59,7 @@ public class AuthControllerImpl implements AuthController {
 
         try {
             return authService.login(user, token);
-        } catch (InvalidCredentialsException | ExistingUserException e) {
+        } catch (InvalidCredentialsException | ExistingUserException | LoggedUserException e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", e.getMessage()));
