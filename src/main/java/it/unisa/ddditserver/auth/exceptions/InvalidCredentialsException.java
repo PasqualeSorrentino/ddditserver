@@ -1,12 +1,10 @@
 package it.unisa.ddditserver.auth.exceptions;
 
-import java.util.List;
-
 /**
  * Exception thrown when authentication fails due to invalid credentials.
  *
- * This specific subtype of {@link AuthException} is used to indicate that
- * the provided username or password does not match any valid account in the system.
+ * This subclass of {@link AuthException} indicates that the provided username or password
+ * is malformed.
  *
  * @author Angelo Antonio Prisco
  * @version 1.0
