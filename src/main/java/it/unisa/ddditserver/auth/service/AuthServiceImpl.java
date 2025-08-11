@@ -3,9 +3,7 @@ package it.unisa.ddditserver.auth.service;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import it.unisa.ddditserver.auth.dto.UserDTO;
-import it.unisa.ddditserver.auth.exceptions.AuthException;
-import it.unisa.ddditserver.auth.exceptions.ExistingUserException;
-import it.unisa.ddditserver.auth.exceptions.InvalidCredentialsException;
+import it.unisa.ddditserver.auth.exceptions.*;
 import it.unisa.ddditserver.db.gremlin.auth.GremlinAuthService;
 import it.unisa.ddditserver.validators.ValidationResult;
 import it.unisa.ddditserver.validators.user.UserValidationDTO;
@@ -50,7 +48,13 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ResponseEntity<Map<String, String>> signup(UserDTO user) {
+    public ResponseEntity<Map<String, String>> signup(UserDTO user, String token) {
+        // Check if the user is already logged
+        ValidationResult validationResult = userValidator.validateLoggedStatus(token);
+        if (!validationResult.isValid()) {
+            throw new LoggedUserException(validationResult.getMessage());
+        }
+
         UserValidationDTO userValidationDTO = new UserValidationDTO(user.getUsername(), user.getPassword());
 
         String username = user.getUsername();
@@ -59,24 +63,71 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(hashedPassword);
 
         // Check if user's credentials are well-formed
-        ValidationResult validationResult = userValidator.validateCredentials(userValidationDTO);
+        validationResult = userValidator.validateCredentials(userValidationDTO);
         if (!validationResult.isValid()) {
             throw new InvalidCredentialsException(validationResult.getMessage());
         }
 
         // Check if the username already exists in graph database
         validationResult = userValidator.validateExistence(userValidationDTO);
-        if(!validationResult.isValid()) {
-            throw new ExistingUserException(validationResult.getMessage());
+        if (!validationResult.isValid()) {
+            throw new InvalidCredentialsException(validationResult.getMessage());
         }
 
         // Save user's information on graph database and generate a JWT token for authentication
         try {
             gremlinService.saveUser(user);
-            String token = generateToken(username);
+            token = generateToken(username);
             return ResponseEntity.ok(Map.of("token", token));
         } catch (Exception e) {
             throw new AuthException("Signup failed during saving's operations on database");
+        }
+    }
+
+    @Override
+    public ResponseEntity<Map<String, String>> login(UserDTO user, String token) {
+        // Check if the user is already logged
+        ValidationResult validationResult = userValidator.validateLoggedStatus(token);
+        if (!validationResult.isValid()) {
+            throw new LoggedUserException(validationResult.getMessage());
+        }
+
+        String username = user.getUsername();
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String hashedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(hashedPassword);
+
+        UserValidationDTO userValidationDTO = new UserValidationDTO(user.getUsername(), user.getPassword());
+
+        // Check if user's credentials are well-formed
+        validationResult = userValidator.validateCredentials(userValidationDTO);
+        if (!validationResult.isValid()) {
+            throw new InvalidCredentialsException(validationResult.getMessage());
+        }
+
+        // Check if the username already exists in graph database
+        // The method validateExistence(...) is designed for checking during signup operations,
+        // but since the check to be performed is practically the same
+        // but this time the result is that the user must exist,
+        // so instead of creating a new method it was preferred to check if the validation fails,
+        // i.e. if there is already a user in the graph database.
+        validationResult = userValidator.validateExistence(userValidationDTO);
+        if (validationResult.isValid()) {
+            throw new InvalidCredentialsException(validationResult.getMessage());
+        }
+
+        // Check if the password given by the user match with the password stored in graph database
+        validationResult = userValidator.validateMatchingPasswords(userValidationDTO);
+        if (!validationResult.isValid()) {
+            throw new PasswordsMismatchException(validationResult.getMessage());
+        }
+
+        // Generate a JWT token for authentication
+        try {
+            token = generateToken(username);
+            return ResponseEntity.ok(Map.of("token", token));
+        } catch (Exception e) {
+            throw new AuthException("Login failed during token generation");
         }
     }
 }

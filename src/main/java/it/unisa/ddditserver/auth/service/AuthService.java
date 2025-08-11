@@ -8,15 +8,27 @@ import java.util.Map;
  * Service interface for authentication-related operations.
  *
  * @author Angelo Antonio Prisco
- * @version 1.0
+ * @version 1.1
  * @since 2025-08-11
  */
 public interface AuthService {
+
     /**
-     * Registers a new user with the given user data.
+     * Registers a new user with the provided user data and an optional token.
      *
      * @param user the user data transfer object containing signup information
-     * @return a ResponseEntity containing a map with relevant response data (e.g., JWT token)
+     * @param token an optional authentication token, if applicable
+     * @return a ResponseEntity containing a map with relevant response data, such as a JWT token
      */
-    public ResponseEntity<Map<String, String>> signup(UserDTO user);
+    ResponseEntity<Map<String, String>> signup(UserDTO user, String token);
+
+    /**
+     * Authenticates a registered user with the provided user data and an optional token.
+     *
+     * @param user the user data transfer object containing login information
+     * @param token an optional authentication token, if applicable
+     * @return a ResponseEntity containing a map with relevant response data, such as a JWT token
+     */
+    ResponseEntity<Map<String, String>> login(UserDTO user, String token);
 }
+
