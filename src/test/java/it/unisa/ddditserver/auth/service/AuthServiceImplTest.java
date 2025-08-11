@@ -39,8 +39,6 @@ public class AuthServiceImplTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        authService = new AuthServiceImpl();
-
         SecretKey key = Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256);
         String base64Key = Base64.getEncoder().encodeToString(key.getEncoded());
 
