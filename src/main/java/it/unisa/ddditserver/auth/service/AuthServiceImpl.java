@@ -69,7 +69,8 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // Check if the username already exists in graph database
-        validationResult = userValidator.validateExistence(userValidationDTO);
+        // Check UserValidator interface for more information about the exists flag
+        validationResult = userValidator.validateExistence(userValidationDTO, false);
         if (!validationResult.isValid()) {
             throw new InvalidCredentialsException(validationResult.getMessage());
         }
@@ -106,14 +107,10 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // Check if the username already exists in graph database
-        // The method validateExistence(...) is designed for checking during signup operations,
-        // but since the check to be performed is practically the same
-        // but this time the result is that the user must exist,
-        // so instead of creating a new method it was preferred to check if the validation fails,
-        // i.e. if there is already a user in the graph database.
-        validationResult = userValidator.validateExistence(userValidationDTO);
-        if (validationResult.isValid()) {
-            throw new InvalidCredentialsException(validationResult.getMessage());
+        // Check UserValidator interface for more information about the exists flag
+        validationResult = userValidator.validateExistence(userValidationDTO, true);
+        if (!validationResult.isValid()) {
+            throw new ExistingUserException(validationResult.getMessage());
         }
 
         // Check if the password given by the user match with the password stored in graph database
