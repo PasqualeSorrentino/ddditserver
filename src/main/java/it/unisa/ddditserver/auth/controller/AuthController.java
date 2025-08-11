@@ -31,6 +31,16 @@ public interface AuthController {
      * @return a ResponseEntity indicating the result of the login operation
      */
     ResponseEntity<?> login(@RequestBody UserDTO user, HttpServletRequest request);
+
+    /**
+     * Handles user logout requests.
+     *
+     * @param request the HTTP servlet request object
+     * @return a ResponseEntity indicating the result of the logout operation
+     */
+    ResponseEntity<?> logout(HttpServletRequest request);
+
+
 }
 
 

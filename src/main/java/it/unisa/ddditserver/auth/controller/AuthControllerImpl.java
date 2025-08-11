@@ -73,4 +73,25 @@ public class AuthControllerImpl implements AuthController {
                     .body(Map.of("error", "Unexpected error", "details", e.getMessage()));
         }
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        // Retrieve of token
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Missing or invalid Authorization header"));
+        }
+        String token = bearerToken.substring(7);
+
+        try {
+            return authService.logout(token);
+        } catch (AuthException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Unexpected error during logout", "details", e.getMessage()));
+        }
+    }
 }
