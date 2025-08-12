@@ -2,6 +2,7 @@ package it.unisa.ddditserver.auth.exceptions;
 
 /**
  * Exception thrown when attempting to register a user that already exists.
+ *
  * This is a specific subtype of {@link AuthException} used to clearly indicate
  * that the provided username is already registered in the system.
  *

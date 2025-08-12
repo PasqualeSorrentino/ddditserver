@@ -8,7 +8,7 @@ package it.unisa.ddditserver.auth.exceptions;
  *
  * @author Angelo Antonio Prisco
  * @version 1.0
- * @since 2025-08-11
+ * @since 2025-08-12
  */
 public class InvalidCredentialsException extends AuthException {
     public InvalidCredentialsException(String message) {
