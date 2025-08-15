@@ -1,6 +1,6 @@
-package it.unisa.ddditserver.versioning.exceptions.repo;
+package it.unisa.ddditserver.subsystems.versioning.exceptions.repo;
 
-import it.unisa.ddditserver.versioning.exceptions.VersionControlSystemException;
+import it.unisa.ddditserver.subsystems.versioning.exceptions.VersionControlSystemException;
 
 /**
  * Custom exception used to handle generic errors related to repositories operations.
