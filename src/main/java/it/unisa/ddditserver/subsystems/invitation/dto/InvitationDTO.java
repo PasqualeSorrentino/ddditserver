@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InvitationDTO {
-    String username;
+    String fromUsername;
+    String toUsername;
     String repositoryName;
 }
