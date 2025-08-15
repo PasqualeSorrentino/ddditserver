@@ -1,4 +1,4 @@
-package it.unisa.ddditserver.auth.exceptions;
+package it.unisa.ddditserver.subsystems.auth.exceptions;
 
 /**
  * Exception thrown when a user tries to log in while already logged in.

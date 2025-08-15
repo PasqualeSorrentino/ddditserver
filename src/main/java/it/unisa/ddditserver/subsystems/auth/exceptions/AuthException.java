@@ -1,4 +1,4 @@
-package it.unisa.ddditserver.auth.exceptions;
+package it.unisa.ddditserver.subsystems.auth.exceptions;
 
 import lombok.Getter;
 
