@@ -37,4 +37,18 @@ public class VersionDTO {
     private List<String> tags;
     private MultipartFile mesh;
     private List<MultipartFile> material;
+
+    public String getTagsAsString() {
+        StringBuilder tagsAsString = new StringBuilder();
+
+        for (String tag : tags) {
+            tagsAsString.append(tag).append(", ");
+        }
+
+        if (!tagsAsString.isEmpty()) {
+            tagsAsString.delete(tagsAsString.length() - 2, tagsAsString.length());
+        }
+
+        return tagsAsString.toString();
+    }
 }
