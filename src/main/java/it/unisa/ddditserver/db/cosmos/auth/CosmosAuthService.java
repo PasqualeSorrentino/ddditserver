@@ -4,15 +4,15 @@ public interface CosmosAuthService {
     /**
      * Adds a JWT token to the blacklist with a specified TTL (time to live).
      *
-     * @param tokenId the unique identifier of the token (e.g., the 'jti' claim)
+     * @param token the unique identifier of the token
      */
-    void blacklistToken(String tokenId);
+    void blacklistToken(String token);
 
     /**
-     * Checks if a token is present in the blacklist (i.e., revoked).
+     * Checks if a token is present in the blacklist.
      *
-     * @param tokenId the unique identifier of the token (e.g., the 'jti' claim)
+     * @param token the unique identifier of the token
      * @return true if the token is blacklisted (revoked), false otherwise
      */
-    boolean isTokenBlacklisted(String tokenId);
+    boolean isTokenBlacklisted(String token);
 }
