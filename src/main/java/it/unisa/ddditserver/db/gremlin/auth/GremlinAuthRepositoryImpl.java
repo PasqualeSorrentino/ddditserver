@@ -1,32 +1,26 @@
 package it.unisa.ddditserver.db.gremlin.auth;
 
-import it.unisa.ddditserver.auth.dto.UserDTO;
-import it.unisa.ddditserver.auth.exceptions.AuthException;
+import it.unisa.ddditserver.subsystems.auth.dto.UserDTO;
+import it.unisa.ddditserver.subsystems.auth.exceptions.AuthException;
 import it.unisa.ddditserver.db.gremlin.GremlinConfig;
 import jakarta.annotation.PostConstruct;
 import org.apache.tinkerpop.gremlin.driver.Client;
 import org.apache.tinkerpop.gremlin.driver.Cluster;
 import org.apache.tinkerpop.gremlin.driver.Result;
-import org.apache.tinkerpop.gremlin.driver.ResultSet;
 import org.apache.tinkerpop.gremlin.driver.ser.Serializers;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
-@Service
-public class GremlinAuthServiceImpl implements GremlinAuthService {
+@Repository
+public class GremlinAuthRepositoryImpl implements GremlinAuthRepository {
     private final GremlinConfig config;
-    private Cluster cluster;
     private Client client;
 
-    public GremlinAuthServiceImpl(GremlinConfig config) {
+    public GremlinAuthRepositoryImpl(GremlinConfig config) {
         this.config = config;
     }
 
-    /**
-     * Create a connection to the graph database.
-     */
     @PostConstruct
     public void init() {
         String endpoint = config.getEndpoint();
@@ -45,7 +39,7 @@ public class GremlinAuthServiceImpl implements GremlinAuthService {
         }
 
         // Build cluster connection to Gremlin server
-        this.cluster = Cluster.build()
+        Cluster cluster = Cluster.build()
                 .addContactPoint(endpoint)
                 .port(443)
                 .credentials(config.getUsername(), config.getKey())
@@ -58,62 +52,82 @@ public class GremlinAuthServiceImpl implements GremlinAuthService {
 
     @Override
     public void saveUser(UserDTO user) {
-        // Use Gremlin query to add a vertex with label 'user' and properties
+        String username = user.getUsername();
+        String password = user.getPassword();
+
         String query = "g.addV('user')" +
                 ".property('repoId', repoId)" +
                 ".property('username', username)" +
                 ".property('password', password)";
 
-        // Prepare the query with parameter bindings to avoid injection and improve readability
         // The partition key configured in the Azure portal is repoId,
         // so for users who have not yet created a repository the chosen value is unassignedRepoId
         try {
-            client.submit(query,
-                    java.util.Map.of(
+            client.submit(query, Map.of(
                             "repoId", "unassignedRepoId",
-                            "username", user.getUsername(),
-                            "password", user.getPassword()
-                    )
-            ).all().get();
-        } catch (InterruptedException | ExecutionException e) {
+                            "username", username,
+                            "password", password));
+        } catch (Exception e) {
             // If it is necessary use a RuntimeException for more detailed debug
-            throw new AuthException("Error saving user to Gremlin DB");
+            throw new AuthException("Error saving user in Gremlin DB");
         }
     }
 
     @Override
-    public UserDTO findByUsername(String username) {
-        String query = "g.V().hasLabel('user').has('username', username).limit(1).valueMap()"; // Modifica qui
+    public UserDTO findByUser(UserDTO userDTO) {
+        String username = userDTO.getUsername();
+
+        String query = "g.V()." +
+                "hasLabel('user')." +
+                "has('username', username)." +
+                "valueMap()";
         try {
-            ResultSet results = client.submit(query, java.util.Map.of("username", username));
-            List<Result> list = results.all().get();
-            if (list.isEmpty()) {
-                return null;
+            List<Result> results = client.submit(query, java.util.Map.of("username", username)).all().get();
+
+            if (results.isEmpty()) {
+                throw new AuthException("Error finding user by username in Gremlin DB");
             }
 
-            Map<String, Object> vertexMap = (Map<String, Object>) list.get(0).getObject();
+            if (results.size() > 1) {
+                throw new AuthException("More than one user with the same username found in Gremlin DB");
+            }
 
-            String retrievedUsername = ((List<String>) vertexMap.get("username")).get(0);
-            String retrievedPassword = ((List<String>) vertexMap.get("password")).get(0);
+            @SuppressWarnings("unchecked")
+            Map<String, List<Object>> props = (Map<String, List<Object>>) results.get(0).getObject();
 
-            UserDTO user = new UserDTO();
-            user.setUsername(retrievedUsername);
-            user.setPassword(retrievedPassword);
-            return user;
+            String password = props.get("password").get(0).toString();
 
-        } catch (InterruptedException | ExecutionException e) {
+            return new UserDTO(username, password);
+        } catch (AuthException e) {
+            throw e;
+        } catch (Exception e) {
             // If it is necessary use a RuntimeException for more detailed debug
             throw new AuthException("Error finding user by username in Gremlin DB");
         }
     }
 
     @Override
-    public boolean existsByUsername(String username) {
-        String query = "g.V().hasLabel('user').has('username', username).count()";
+    public boolean existsByUser(UserDTO userDTO) {
+        String username = userDTO.getUsername();
+
+        String query = "g.V()." +
+                "hasLabel('user')." +
+                "has('username', username)";
+
         try {
-            ResultSet results = client.submit(query, java.util.Map.of("username", username));
-            Long count = results.one().getLong();
-            return count != null && count > 0;
+            List<Result> results = client.submit(query, java.util.Map.of("username", username)).all().get();
+
+            if (results.isEmpty()) {
+                return false;
+            }
+
+            if (results.size() > 1) {
+                throw new AuthException("More than one user with the same username found in Gremlin DB");
+            }
+
+            return true;
+        } catch (AuthException e) {
+            throw e;
         } catch (Exception e) {
             // If it is necessary use a RuntimeException for more detailed debug
             throw new AuthException("Error checking user existence in Gremlin DB");
