@@ -1,4 +1,4 @@
-package it.unisa.ddditserver.db.blobstorage;
+package it.unisa.ddditserver.db.unit.blobstorage;
 
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.storage.blob.BlobClient;
@@ -7,6 +7,7 @@ import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.specialized.BlobInputStream;
+import it.unisa.ddditserver.db.blobstorage.BlobStorageConfig;
 import it.unisa.ddditserver.db.blobstorage.versioning.BlobStorageVersionRepositoryImpl;
 import it.unisa.ddditserver.subsystems.versioning.dto.version.VersionDTO;
 import org.apache.commons.lang3.tuple.Triple;
@@ -40,23 +41,23 @@ public class BlobStorageVersionRepositoryImplTest {
     @Mock
     private BlobClient blobClient;
 
-    // Can't use @InjectMocks because
+    // Can't use @InjectMocks because findMeshByUrl()/findMaterialByUrl() test need to mock existsMeshByUrl()/existsMaterialByUrl()
     @Spy
-    private BlobStorageVersionRepositoryImpl service = new BlobStorageVersionRepositoryImpl(config);
+    private BlobStorageVersionRepositoryImpl repository = new BlobStorageVersionRepositoryImpl(config);
 
     @BeforeEach
     public void setUp() throws Exception {
         Field meshesField = BlobStorageVersionRepositoryImpl.class.getDeclaredField("meshesContainerClient");
         meshesField.setAccessible(true);
-        meshesField.set(service, meshesContainerClient);
+        meshesField.set(repository, meshesContainerClient);
 
         Field materialsField = BlobStorageVersionRepositoryImpl.class.getDeclaredField("materialsContainerClient");
         materialsField.setAccessible(true);
-        materialsField.set(service, materialsContainerClient);
+        materialsField.set(repository, materialsContainerClient);
     }
 
     @Test
-    // Happy path: Valid VersionDTO with a mesh file uploads successfully and returns the blob URL.
+    // Happy path: Valid VersionDTO with a mesh file uploads successfully and returns the blob URL
     void saveMeshSuccess() throws Exception {
         VersionDTO version = new VersionDTO();
         version.setRepositoryName("repo");
@@ -75,7 +76,7 @@ public class BlobStorageVersionRepositoryImplTest {
         when(meshesContainerClient.getBlobClient(anyString())).thenReturn(blobClient);
         when(blobClient.getBlobUrl()).thenReturn("http://mock/mesh.fbx");
 
-        String url = service.saveMesh(version);
+        String url = repository.saveMesh(version);
 
         assertEquals("http://mock/mesh.fbx", url);
         verify(blobClient, times(1)).upload(any(InputStream.class), eq(100L), eq(true));
@@ -83,7 +84,7 @@ public class BlobStorageVersionRepositoryImplTest {
     }
 
     @Test
-    // Happy path: Valid VersionDTO with material files uploads successfully and returns the folder URL.
+    // Happy path: Valid VersionDTO with material files uploads successfully and returns the folder URL
     void saveMaterialSuccess() throws Exception {
         VersionDTO version = new VersionDTO();
         version.setRepositoryName("repo");
@@ -102,7 +103,7 @@ public class BlobStorageVersionRepositoryImplTest {
         when(materialsContainerClient.getBlobClient(anyString())).thenReturn(blobClient);
         when(blobClient.getBlobUrl()).thenReturn("http://mock/material/");
 
-        String folderUrl = service.saveMaterial(version);
+        String folderUrl = repository.saveMaterial(version);
 
         assertEquals("http://mock/material/", folderUrl);
         verify(blobClient, times(1)).upload(any(InputStream.class), eq(50L), eq(false));
@@ -120,7 +121,7 @@ public class BlobStorageVersionRepositoryImplTest {
         when(meshesContainerClient.getBlobClient(meshPath)).thenReturn(blobClient);
         when(blobClient.exists()).thenReturn(true);
 
-        boolean exists = service.existsMeshByUrl(meshUrl);
+        boolean exists = repository.existsMeshByUrl(meshUrl);
 
         assertTrue(exists);
         verify(meshesContainerClient).getBlobClient(meshPath);
@@ -143,14 +144,54 @@ public class BlobStorageVersionRepositoryImplTest {
         when(materialsContainerClient.listBlobsByHierarchy(anyString(), any(ListBlobsOptions.class), any(Duration.class)))
                 .thenReturn(pagedIterable);
 
-        boolean exists = service.existsMaterialByUrl(materialFolderUrl);
+        boolean exists = repository.existsMaterialByUrl(materialFolderUrl);
 
         assertTrue(exists);
         verify(materialsContainerClient).listBlobsByHierarchy(anyString(), any(ListBlobsOptions.class), any(Duration.class));
     }
 
     @Test
-    // Happy path: Finds mesh by valid URL and returns InputStream, content type, and mesh name.
+    // Happy path: Returns false when no mesh exists at the given URL
+    void existsMeshByUrlReturnsFalse() {
+        String containerUrl = "http://mock/container";
+        String meshPath = "path/to/mesh.fbx";
+        String meshUrl = containerUrl + "/" + meshPath;
+
+        when(meshesContainerClient.getBlobContainerUrl()).thenReturn(containerUrl);
+        when(meshesContainerClient.getBlobClient(meshPath)).thenReturn(blobClient);
+        when(blobClient.exists()).thenReturn(false);
+
+        boolean exists = repository.existsMeshByUrl(meshUrl);
+
+        assertFalse(exists);
+        verify(meshesContainerClient).getBlobClient(meshPath);
+        verify(blobClient).exists();
+    }
+
+    @Test
+    // Happy path: Returns false when no material exists in the folder URL
+    void existsMaterialByUrlReturnsFalse() {
+        String containerUrl = "http://mock/container";
+        String folderPath = "materials/";
+        String materialFolderUrl = containerUrl + "/" + folderPath;
+
+        BlobItem blobItem = mock(BlobItem.class);
+
+        PagedIterable<BlobItem> pagedIterable = mock(PagedIterable.class);
+        when(pagedIterable.iterator()).thenReturn(List.<BlobItem>of().iterator());
+
+        when(materialsContainerClient.getBlobContainerUrl()).thenReturn(containerUrl);
+        when(materialsContainerClient.listBlobsByHierarchy(anyString(), any(ListBlobsOptions.class), any(Duration.class)))
+                .thenReturn(pagedIterable);
+
+        boolean exists = repository.existsMaterialByUrl(materialFolderUrl);
+
+        assertFalse(exists);
+        verify(materialsContainerClient).listBlobsByHierarchy(anyString(), any(ListBlobsOptions.class), any(Duration.class));
+    }
+
+    @Test
+    // Happy path: Finds mesh by valid URL and returns InputStream, content type, and mesh name
     void findMeshByUrlSuccess() {
         String meshUrl = "http://mock/container/path/to/mesh.fbx";
 
@@ -164,9 +205,9 @@ public class BlobStorageVersionRepositoryImplTest {
         when(properties.getContentType()).thenReturn("application/octet-stream");
         when(blobClient.getProperties()).thenReturn(properties);
 
-        doReturn(true).when(service).existsMeshByUrl(anyString());
+        doReturn(true).when(repository).existsMeshByUrl(anyString());
 
-        Triple<InputStream, String, String> result = service.findMeshByUrl(meshUrl);
+        Triple<InputStream, String, String> result = repository.findMeshByUrl(meshUrl);
 
         assertEquals("mesh.fbx", result.getRight());
         assertEquals("application/octet-stream", result.getMiddle());
@@ -193,9 +234,9 @@ public class BlobStorageVersionRepositoryImplTest {
         when(blobClient.getProperties()).thenReturn(properties);
         when(properties.getContentType()).thenReturn("image/png");
 
-        doReturn(true).when(service).existsMaterialByUrl(anyString());
+        doReturn(true).when(repository).existsMaterialByUrl(anyString());
 
-        List<Triple<InputStream, String, String>> results = service.findMaterialByUrl(materialFolderUrl);
+        List<Triple<InputStream, String, String>> results = repository.findMaterialByUrl(materialFolderUrl);
 
         assertEquals(1, results.size());
         Triple<InputStream, String, String> triple = results.get(0);
@@ -205,20 +246,20 @@ public class BlobStorageVersionRepositoryImplTest {
     }
 
     @Test
-    // Happy path: Deletes mesh by valid URL without exception.
+    // Happy path: Deletes mesh by valid URL without exception
     void deleteMeshByUrlSuccess() {
         String meshUrl = "http://mock/container/path/to/mesh.fbx";
         
         when(meshesContainerClient.getBlobClient(anyString())).thenReturn(blobClient);
         when(blobClient.exists()).thenReturn(true);
 
-        service.deleteMeshByUrl(meshUrl);
+        repository.deleteMeshByUrl(meshUrl);
 
         verify(blobClient, times(1)).delete();
     }
 
     @Test
-    // Happy path: Deletes all materials in a valid folder URL without exception.
+    // Happy path: Deletes all materials in a valid folder URL without exception
     void deleteMaterialByUrlSuccess() {
         String materialFolderUrl = "http://mock/container/materials/";
         BlobItem blobItem = mock(BlobItem.class);
@@ -232,7 +273,7 @@ public class BlobStorageVersionRepositoryImplTest {
 
         when(materialsContainerClient.listBlobsByHierarchy(anyString())).thenReturn(pagedIterable);
 
-        service.deleteMaterialByUrl(materialFolderUrl);
+        repository.deleteMaterialByUrl(materialFolderUrl);
 
         verify(blobClient, times(1)).delete();
     }
