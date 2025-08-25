@@ -1,38 +1,41 @@
-package it.unisa.ddditserver.auth.controller;
+package it.unisa.ddditserver.subsystems.auth.controller;
 
-import it.unisa.ddditserver.auth.dto.UserDTO;
-import it.unisa.ddditserver.auth.exceptions.AuthException;
-import it.unisa.ddditserver.auth.exceptions.ExistingUserException;
-import it.unisa.ddditserver.auth.exceptions.InvalidCredentialsException;
-import it.unisa.ddditserver.auth.exceptions.LoggedUserException;
-import it.unisa.ddditserver.auth.service.AuthService;
+import it.unisa.ddditserver.subsystems.auth.dto.UserDTO;
+import it.unisa.ddditserver.subsystems.auth.exceptions.*;
+import it.unisa.ddditserver.subsystems.auth.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/auth")
 public class AuthControllerImpl implements AuthController {
     @Autowired
     private AuthService authService;
 
+    private String extractToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
+            return null;
+        }
+        return bearerToken.substring(7);
+    }
+
     @Override
     @PostMapping("/signup")
-    public ResponseEntity<Map<String, String>> signup(@RequestBody UserDTO user, HttpServletRequest request) {
-        // Retrieve of token if it exists
-        String bearerToken = request.getHeader("Authorization");
-        String token = null;
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            token = bearerToken.substring(7);
-        }
+    public ResponseEntity<Map<String, String>> signup(@RequestBody UserDTO userDTO, HttpServletRequest request) {
+        String token = extractToken(request);
 
         try {
-            return authService.signup(user, token);
-        } catch (InvalidCredentialsException | ExistingUserException | LoggedUserException e) {
+            return authService.signup(userDTO, token);
+        } catch (InvalidUsernameException | InvalidPasswordException |
+                 ExistingUserException | LoggedUserException e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", e.getMessage()));
@@ -43,23 +46,20 @@ public class AuthControllerImpl implements AuthController {
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Unexpected error", "details", e.getMessage()));
+                    .body(Map.of("error", "Unexpected error during signup", "details", e.getMessage()));
         }
     }
 
     @Override
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody UserDTO user, HttpServletRequest request) {
-        // Retrieve of token if it exists
-        String bearerToken = request.getHeader("Authorization");
-        String token = null;
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            token = bearerToken.substring(7);
-        }
+    public ResponseEntity<Map<String, String>> login(@RequestBody UserDTO userDTO, HttpServletRequest request) {
+        String token = extractToken(request);
 
         try {
-            return authService.login(user, token);
-        } catch (InvalidCredentialsException | ExistingUserException | LoggedUserException e) {
+            return authService.login(userDTO, token);
+        } catch (InvalidUsernameException | InvalidPasswordException |
+                 UserNotFoundException | PasswordsMismatchException |
+                 LoggedUserException e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", e.getMessage()));
@@ -70,24 +70,21 @@ public class AuthControllerImpl implements AuthController {
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Unexpected error", "details", e.getMessage()));
+                    .body(Map.of("error", "Unexpected error during login", "details", e.getMessage()));
         }
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
-        // Retrieve of token
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Missing or invalid Authorization header"));
-        }
-        String token = bearerToken.substring(7);
+        String token = extractToken(request);
 
         try {
             return authService.logout(token);
-        } catch (AuthException e) {
+        } catch (NotLoggedUserException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (AuthException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

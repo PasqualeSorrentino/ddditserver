@@ -1,12 +1,15 @@
-package it.unisa.ddditserver.auth.controller;
+package it.unisa.ddditserver.subsystems.auth.controller;
 
-import it.unisa.ddditserver.auth.dto.UserDTO;
+import it.unisa.ddditserver.subsystems.auth.dto.UserDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * Controller interface for authentication endpoints.
+ *
+ * Provides operations for user signup, login, and logout
+ * within the authentication subsystem.
  *
  * @author Angelo Antonio Prisco
  * @version 1.1
@@ -15,32 +18,29 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface AuthController {
 
     /**
-     * Handles user signup requests.
+     * Handles the request to sign up a new user.
      *
-     * @param user the user data transfer object containing signup information
+     * @param userDTO the user data transfer object containing signup information
      * @param request the HTTP servlet request object
      * @return a ResponseEntity indicating the result of the signup operation
      */
-    ResponseEntity<?> signup(@RequestBody UserDTO user, HttpServletRequest request);
+    ResponseEntity<?> signup(@RequestBody UserDTO userDTO, HttpServletRequest request);
 
     /**
-     * Handles user login requests.
+     * Handles the request to log in a user.
      *
-     * @param user the user data transfer object containing login information
+     * @param userDTO the user data transfer object containing login information
      * @param request the HTTP servlet request object
      * @return a ResponseEntity indicating the result of the login operation
      */
-    ResponseEntity<?> login(@RequestBody UserDTO user, HttpServletRequest request);
+    ResponseEntity<?> login(@RequestBody UserDTO userDTO, HttpServletRequest request);
 
     /**
-     * Handles user logout requests.
+     * Handles the request to log out the current user.
      *
      * @param request the HTTP servlet request object
      * @return a ResponseEntity indicating the result of the logout operation
      */
     ResponseEntity<?> logout(HttpServletRequest request);
 
-
 }
-
-
