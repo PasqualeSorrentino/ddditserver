@@ -25,6 +25,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CosmosVersionDTO {
     private String id;
+    private String resourceId;
     private String resourceName;
     private String versionName;
     private String username;
