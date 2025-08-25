@@ -19,6 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+// ATTENTION: at the moment due to time restrictions only tests for happy paths are available
 class GremlinBranchRepositoryImplTest {
     @Mock
     private GremlinConfig config;
