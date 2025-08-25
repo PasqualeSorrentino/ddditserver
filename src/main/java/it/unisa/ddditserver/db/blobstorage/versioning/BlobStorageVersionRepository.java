@@ -1,18 +1,19 @@
 package it.unisa.ddditserver.db.blobstorage.versioning;
 
 import it.unisa.ddditserver.subsystems.versioning.dto.version.VersionDTO;
+import org.apache.commons.lang3.tuple.Triple;
 import java.io.InputStream;
 import java.util.List;
 
 /**
- * Service interface for managing version-related operations
+ * Repository interface for managing version-related operations
  * in a BLOB storage database.
  *
  * @author Angelo Antonio Prisco
- * @version 1.0
- * @since 2025-08-13
+ * @version 1.1
+ * @since 2025-08-25
  */
-public interface BlobStorageVersionService {
+public interface BlobStorageVersionRepository {
     /**
      * Saves a new mesh BLOB in the BLOB storage.
      *
@@ -38,7 +39,7 @@ public interface BlobStorageVersionService {
     boolean existsMeshByUrl(String meshUrl);
 
     /**
-     * Checks if a mesh exists for the specified URL.
+     * Checks if a material exists for the specified URL.
      *
      * @param materialFolderUrl the BLOB storage URL that identifies the folder of the material
      * @return true if branch exists, false otherwise
@@ -49,15 +50,29 @@ public interface BlobStorageVersionService {
      * Retrieves the mesh data as an input stream for the specified URL.
      *
      * @param meshUrl the BLOB storage URL that identifies the mesh
-     * @return an InputStream containing the mesh data
+     * @return a Triple containing an InputStream containing the mesh data, the content-type of the file and filename
      */
-    InputStream findMeshByUrl(String meshUrl);
+    Triple<InputStream, String, String> findMeshByUrl(String meshUrl);
 
     /**
      * Retrieves the list of material data streams for the specified folder URL.
      *
      * @param materialFolderUrl the BLOB storage URL that identifies the folder of the material
-     * @return a list of InputStreams, each containing the data of a texture of the specified material;
+     * @return a list of a Triple containing an InputStream containing the texture data, the content-type of the file and filename
      */
-    List<InputStream> findMaterialByUrl(String materialFolderUrl);
+    List<Triple<InputStream, String, String>> findMaterialByUrl(String materialFolderUrl);
+
+    /**
+     * Delete the mesh BLOB for the specified URL.
+     *
+     * @param meshUrl the BLOB storage URL that identifies the mesh
+     */
+    void deleteMeshByUrl(String meshUrl);
+
+    /**
+     * Delete the material folder for the specified URL.
+     *
+     * @param materialFolderUrl the BLOB storage URL that identifies the folder of the material
+     */
+    void deleteMaterialByUrl(String materialFolderUrl);
 }
