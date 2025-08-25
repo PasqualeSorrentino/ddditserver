@@ -1,64 +1,63 @@
 package it.unisa.ddditserver.db.gremlin.versioning.repo;
-
-import it.unisa.ddditserver.auth.dto.UserDTO;
-import it.unisa.ddditserver.versioning.dto.RepositoryDTO;
+import it.unisa.ddditserver.subsystems.auth.dto.UserDTO;
+import it.unisa.ddditserver.subsystems.versioning.dto.RepositoryDTO;
 import java.util.List;
 
 /**
- * Service interface for managing repository-related operations
+ * Repository interface for managing repository-related operations
  * in a Gremlin-compatible graph database.
  *
  * @author Angelo Antonio Prisco
- * @version 1.0
- * @since 2025-08-12
+ * @version 1.1
+ * @since 2025-08-13
  */
-public interface GremlinRepositoryService {
+public interface GremlinRepositoryRepository {
 
     /**
      * Creates a new repository vertex in the graph database and associates it
      * with an existing user as the owner.
      *
-     * @param repositoryDTO the repository information
-     * @param userDTO the existing user who will own the repository
+     * @param repositoryDTO the RepositoryDTO containing repository information
+     * @param userDTO the UserDTO containing user who will own the repository
      */
     void saveRepository(RepositoryDTO repositoryDTO, UserDTO userDTO);
 
     /**
-     * Checks whether a repository with the specified name exists in the database.
+     * Checks whether a repository exists in the database.
      *
-     * @param repositoryName the repository name to check
-     * @return {@code true} if the repository exists, {@code false} otherwise
+     * @param repositoryDTO the repository to search for
+     * @return true if the repository exists, false otherwise
      */
-    boolean existsByRepositoryName(String repositoryName);
+    boolean existsByRepository(RepositoryDTO repositoryDTO);
 
     /**
      * Retrieves the list of contributors for a given repository.
      *
-     * @param repositoryName the repository name
+     * @param repositoryDTO the repository to search for
      * @return a list of {@link UserDTO} objects representing the contributors
      */
-    List<UserDTO> findContributorsByRepositoryName(String repositoryName);
+    List<UserDTO> findContributorsByRepository(RepositoryDTO repositoryDTO);
 
     /**
      * Checks if the given user is a contributor to the specified repository.
      *
-     * @param repositoryDTO the repository to check
+     * @param repositoryDTO the repository to search for
      * @param userDTO the user to verify
-     * @return {@code true} if the user is a contributor, {@code false} otherwise
+     * @return true if the user is a contributor, false otherwise
      */
     boolean isContributor(RepositoryDTO repositoryDTO, UserDTO userDTO);
 
     /**
      * Checks if the given user is the owner of the specified repository.
      *
-     * @param repositoryDTO the repository to check
+     * @param repositoryDTO the repository to search for
      * @param userDTO the user to verify
-     * @return {@code true} if the user is the owner, {@code false} otherwise
+     * @return true if the user is the owner, false otherwise
      */
     boolean isOwner(RepositoryDTO repositoryDTO, UserDTO userDTO);
 
     /**
-     * Adds an existing user as a contributor to an existing repository.
+     * Adds an existing user as a contributor to an existing repository creating an edge between the two nodes.
      *
      * @param repositoryDTO the repository to update
      * @param userDTO the user to add as a contributor
