@@ -9,15 +9,15 @@ import it.unisa.ddditserver.subsystems.auth.exceptions.AuthException;
 import it.unisa.ddditserver.db.cosmos.CosmosConfig;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
-@Service
-public class CosmosAuthServiceImpl implements CosmosAuthService {
+@Repository
+public class CosmosAuthRepositoryImpl implements CosmosAuthRepository {
     private final CosmosConfig config;
     private CosmosContainer blacklistContainer;
 
     @Autowired
-    public CosmosAuthServiceImpl(CosmosConfig config) {
+    public CosmosAuthRepositoryImpl(CosmosConfig config) {
         this.config = config;
     }
 
@@ -49,7 +49,7 @@ public class CosmosAuthServiceImpl implements CosmosAuthService {
 
             BlacklistedTokenDTO blacklistedToken = new BlacklistedTokenDTO(token, token, remainingTtl);
             blacklistContainer.upsertItem(blacklistedToken);
-        } catch (Exception e) {
+        } catch (CosmosException e) {
             // If it is necessary use a RuntimeException for more detailed debug
             throw new AuthException("Error blacklisting token");
         }

@@ -1,6 +1,14 @@
 package it.unisa.ddditserver.db.cosmos.auth;
 
-public interface CosmosAuthService {
+/**
+ * Repository interface for managing authentication-related operations
+ * in a Cosmos DB.
+ *
+ * @author Angelo Antonio Prisco
+ * @version 1.0
+ * @since 2025-08-25
+ */
+public interface CosmosAuthRepository {
     /**
      * Adds a JWT token to the blacklist with a specified TTL (time to live).
      *
