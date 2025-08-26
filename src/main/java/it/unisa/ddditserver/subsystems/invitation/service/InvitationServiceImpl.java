@@ -52,7 +52,7 @@ public class InvitationServiceImpl implements  InvitationService {
             throw new NotLoggedUserException("Missing, invalid, or expired Authorization token");
         }
 
-        checkUserStatus(repositoryName, toUsername);
+        checkUserStatus(repositoryName, retrievedUsername);
 
         UserValidationDTO fromUserValidationDTO = new UserValidationDTO(retrievedUsername, null);
         UserValidationDTO toUserValidationDTO = new UserValidationDTO(toUsername, null);
