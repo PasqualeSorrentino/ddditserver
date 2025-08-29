@@ -2,7 +2,7 @@ package it.unisa.ddditserver.subsystems.versioning.service.version;
 
 import it.unisa.ddditserver.db.gremlin.versioning.repo.GremlinRepositoryRepository;
 import it.unisa.ddditserver.db.gremlin.versioning.version.GremlinVersionRepository;
-import it.unisa.ddditserver.subsystems.ai.MockAI;
+import it.unisa.ddditserver.subsystems.ai.service.TagClassificationModelService;
 import it.unisa.ddditserver.subsystems.auth.dto.UserDTO;
 import it.unisa.ddditserver.subsystems.auth.exceptions.NotLoggedUserException;
 import it.unisa.ddditserver.subsystems.versioning.dto.RepositoryDTO;
@@ -36,6 +36,8 @@ public class VersionServiceImpl implements VersionService {
     private UserValidator userValidator;
     @Autowired
     private VersionValidator versionValidator;
+    @Autowired
+    private TagClassificationModelService tagClassificationModelService;
 
     private void checkUserStatus(String repositoryName, String username) {
         RepositoryDTO repositoryDTO = new RepositoryDTO(repositoryName);
@@ -68,7 +70,7 @@ public class VersionServiceImpl implements VersionService {
         String versionName = versionDTO.getVersionName();
         LocalDateTime pushedAt = LocalDateTime.now();
         String comment = versionDTO.getComment();
-        List<String> tags = MockAI.mockClassification(versionDTO); // ATTENTION : at the moment this is only a mock
+        List<String> tags = new ArrayList<>();
         MultipartFile mesh = null;
         List<MultipartFile> material = null;
 
@@ -81,6 +83,7 @@ public class VersionServiceImpl implements VersionService {
         else {
             resourceType = true;
             mesh =  versionDTO.getMesh();
+            tags = tagClassificationModelService.classify(versionDTO);
         }
 
         if (retrievedUsername == null) {
