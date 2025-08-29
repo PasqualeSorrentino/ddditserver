@@ -64,21 +64,15 @@ public class TagClassificationModelService {
     }
 
     public List<File> getOnnxModelsInFolder() {
-        try {
-            String folderPath = config.getModelsFolderPath();
+        models.clear();
 
-            File folder = new File(folderPath);
-            File[] files = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".onnx"));
+        String folderPath = config.getModelsFolderPath();
 
-            if (files != null) {
-                models.addAll(Arrays.asList(files));
-            }
+        File folder = new File(folderPath);
+        File[] files = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".onnx"));
 
-            for (File file : models) {
-                System.out.println(file.getAbsolutePath());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (files != null) {
+            models.addAll(Arrays.asList(files));
         }
 
         return models;
@@ -100,7 +94,7 @@ public class TagClassificationModelService {
             }
 
             if (output[0] == 1) {
-                results.add(modelFile.getName().split("_")[2].split("\\.")[1]);
+                results.add(modelFile.getName().split("_")[2].split("\\.")[0]);
             }
         }
 
@@ -150,6 +144,7 @@ public class TagClassificationModelService {
             }
 
             Object rawOutput = result.get(0).getValue();
+
             long[] output;
             if (rawOutput instanceof long[]) {
                 output = (long[]) rawOutput;
@@ -213,10 +208,6 @@ public class TagClassificationModelService {
     }
 
     public ArrayList<String> classify(VersionDTO versionDTO) {
-        System.out.println(config.toString());
-        System.out.println(config.getModelsFolderPath());
-        System.out.println(config.getFromEmail());
-        System.out.println(config.getToEmail());
         MultipartFile mesh = versionDTO.getMesh();
 
         byte[] bytes = null;
