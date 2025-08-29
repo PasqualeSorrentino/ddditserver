@@ -26,6 +26,11 @@ jobs:
 
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
+      MODELS_FOLDER_PATH: ${{ secrets.MODELS_FOLDER_PATH }}
+      FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+      TO_EMAIL: ${{ secrets.TO_EMAIL }}
+      APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
