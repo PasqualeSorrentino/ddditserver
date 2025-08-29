@@ -124,13 +124,13 @@
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl</artifactId>
             <version>3.3.2</version>
-            <classifier>natives-windows</classifier> <!-- Change in natives-linux, native-windows or natives-macos -->
+            <classifier>natives-linux</classifier> <!-- Change in natives-linux, native-windows or natives-macos -->
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-assimp</artifactId>
             <version>3.3.2</version>
-            <classifier>natives-windows</classifier> <!-- Change in natives-linux, native-windows or natives-macos -->
+            <classifier>natives-linux</classifier> <!-- Change in natives-linux, native-windows or natives-macos -->
         </dependency>
         <dependency>
             <groupId>com.microsoft.onnxruntime</groupId>
