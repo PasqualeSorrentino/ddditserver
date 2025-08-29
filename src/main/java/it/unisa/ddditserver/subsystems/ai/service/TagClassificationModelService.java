@@ -73,6 +73,10 @@ public class TagClassificationModelService {
             if (files != null) {
                 models.addAll(Arrays.asList(files));
             }
+
+            for (File file : models) {
+                System.out.println(file.getAbsolutePath());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -96,7 +100,7 @@ public class TagClassificationModelService {
             }
 
             if (output[0] == 1) {
-                results.add(modelFile.getName().split("_")[2]);
+                results.add(modelFile.getName().split("_")[2].split("\\.")[1]);
             }
         }
 
