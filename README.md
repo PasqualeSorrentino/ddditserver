@@ -51,6 +51,11 @@ The server is intended to run on an **Azure VM**, but it can also be executed lo
     BLOB_STORAGE_CONTAINER_MATERIALS="blob-storage-container-materials"
 
     JWT_SECRET="jwt-secret"
+
+    MODELS_FOLDER_PATH="models-folder-path"
+    FROM_EMAIL="from-email"
+    TO_EMAIL="to-email"
+    APP_PASSWORD="app-password"
     ```
 4. Start the application from IntelliJ.
 
@@ -66,7 +71,9 @@ If you want to use your own Azure setup, you should update this return operation
 - [Azure Cosmos DB](https://azure.microsoft.com/services/cosmos-db/) – Globally distributed NoSQL database used for storing resources and versions.  
 - [Azure Gremlin DB](https://learn.microsoft.com/azure/cosmos-db/graph/graph-introduction) – Graph database used for modeling relationships between entities.  
 - [Azure Blob Storage](https://azure.microsoft.com/services/storage/blobs/) – Storage service for 3D models and texture files.  
-- [JWT (JSON Web Tokens)](https://jwt.io/) – Used for authentication and securing API access.  
+- [JWT (JSON Web Tokens)](https://jwt.io/) – Used for authentication and securing API access.
+- [Jakarta Mail](https://eclipse-ee4j.github.io/mail/) – Used for AI module monitoring and alerting via email.
+- [Eclipse Angus](https://projects.eclipse.org/projects/ee4j.angus) – Implementation of Jakarta Mail and Activation APIs.
 
 
 ## 🔗 Related resources
