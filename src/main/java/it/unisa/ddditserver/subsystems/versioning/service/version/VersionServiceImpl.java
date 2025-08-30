@@ -2,7 +2,7 @@ package it.unisa.ddditserver.subsystems.versioning.service.version;
 
 import it.unisa.ddditserver.db.gremlin.versioning.repo.GremlinRepositoryRepository;
 import it.unisa.ddditserver.db.gremlin.versioning.version.GremlinVersionRepository;
-import it.unisa.ddditserver.subsystems.ai.service.TagClassificationModelService;
+import it.unisa.ddditserver.subsystems.ai.service.TagClassificationService;
 import it.unisa.ddditserver.subsystems.auth.dto.UserDTO;
 import it.unisa.ddditserver.subsystems.auth.exceptions.NotLoggedUserException;
 import it.unisa.ddditserver.subsystems.versioning.dto.RepositoryDTO;
@@ -37,7 +37,7 @@ public class VersionServiceImpl implements VersionService {
     @Autowired
     private VersionValidator versionValidator;
     @Autowired
-    private TagClassificationModelService tagClassificationModelService;
+    private TagClassificationService tagClassificationService;
 
     private void checkUserStatus(String repositoryName, String username) {
         RepositoryDTO repositoryDTO = new RepositoryDTO(repositoryName);
@@ -83,7 +83,7 @@ public class VersionServiceImpl implements VersionService {
         else {
             resourceType = true;
             mesh =  versionDTO.getMesh();
-            tags = tagClassificationModelService.classify(versionDTO);
+            tags = tagClassificationService.classify(versionDTO);
         }
 
         if (retrievedUsername == null) {
