@@ -6,6 +6,7 @@ import ai.onnxruntime.OrtSession;
 import it.unisa.ddditserver.subsystems.ai.TagClassificationModelConfig;
 import it.unisa.ddditserver.subsystems.ai.exceptions.TagClassificationException;
 import it.unisa.ddditserver.subsystems.versioning.dto.version.VersionDTO;
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
 import java.io.FileOutputStream;
@@ -24,17 +25,22 @@ import java.lang.management.ThreadMXBean;
 import java.util.*;
 
 @Service
-public class TagClassificationModelService {
+public class TagClassificationServiceImpl implements TagClassificationService {
     private final TagClassificationModelConfig config;
     private final List<File> models;
 
     @Autowired
-    public TagClassificationModelService(TagClassificationModelConfig config) {
+    public TagClassificationServiceImpl(TagClassificationModelConfig config) {
         this.models = new ArrayList<>();
         this.config = config;
     }
 
-    public static void sendEmail(String from, String appPassword, String to, String subject, String body) {
+    @PostConstruct
+    public void init() {
+        getOnnxModelsInFolder();
+    }
+
+    private static void sendEmail(String from, String appPassword, String to, String subject, String body) {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
@@ -63,7 +69,7 @@ public class TagClassificationModelService {
         }
     }
 
-    public List<File> getOnnxModelsInFolder() {
+    public void getOnnxModelsInFolder() {
         models.clear();
 
         String folderPath = config.getModelsFolderPath();
@@ -74,15 +80,12 @@ public class TagClassificationModelService {
         if (files != null) {
             models.addAll(Arrays.asList(files));
         }
-
-        return models;
     }
 
-    public ArrayList<String> predictAllModels(float[] inputFeatures) {
-        List<File> modelFiles = getOnnxModelsInFolder();
+    private ArrayList<String> predictAllModels(float[] inputFeatures) {
         ArrayList<String> results = new ArrayList<>();
 
-        for (File modelFile : modelFiles) {
+        for (File modelFile : models) {
             long[] output;
 
             try {
@@ -101,7 +104,7 @@ public class TagClassificationModelService {
         return results;
     }
 
-    public long[] runOnnxModel(float[] inputFeatures, File modelFile) {
+    private long[] runOnnxModel(float[] inputFeatures, File modelFile) {
         try (OrtEnvironment env = OrtEnvironment.getEnvironment();
              OrtSession session = env.createSession(modelFile.getAbsolutePath(), new OrtSession.SessionOptions())) {
 
@@ -135,7 +138,7 @@ public class TagClassificationModelService {
                 String appPassword = config.getAppPassword();
                 String to = config.getToEmail();
                 String subject = "[ALERT] Dddit AI module performance risk";
-                String body = "⚠️ Dddit AI module performance issue detected:\n\n"
+                String body = "ATTENTION - Dddit AI module performance issue detected:\n\n"
                         + "- Inference time: " + durationMs + " ms\n"
                         + "- Memory used: " + (memoryUsed / (1024 * 1024)) + " MB\n"
                         + "- CPU time: " + (cpuTime / 1_000_000) + " ms";
@@ -162,7 +165,7 @@ public class TagClassificationModelService {
         }
     }
 
-    public Map<String, Double> extractFbxFeatures(File fbxFile) {
+    private Map<String, Double> extractFbxFeatures(File fbxFile) {
         AIScene scene = Assimp.aiImportFile(
                 fbxFile.getAbsolutePath(),
                 Assimp.aiProcess_Triangulate | Assimp.aiProcess_JoinIdenticalVertices
