@@ -78,3 +78,4 @@ If you want to use your own Azure setup, you should update this return operation
 
 ## 🔗 Related resources
 - [Dddit Client](https://github.com/AngeloAntonioPrisco/ddditclient): The official Python client to interact with the Dddit Server APIs, useful for testing and consuming the server's functionalities.
+- [Dddit AI](https://github.com/AngeloAntonioPrisco/ddditai): The official project tha manage Dddit AI module loaded on Dddit Server
