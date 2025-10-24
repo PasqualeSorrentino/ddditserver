@@ -124,13 +124,13 @@
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl</artifactId>
             <version>3.3.2</version>
-            <classifier>natives-linux</classifier> <!-- Change in natives-linux, native-windows or natives-macos -->
+            <classifier>natives-windows</classifier> <!-- Change in natives-linux, native-windows or natives-macos -->
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-assimp</artifactId>
             <version>3.3.2</version>
-            <classifier>natives-linux</classifier> <!-- Change in natives-linux, native-windows or natives-macos -->
+            <classifier>natives-windows</classifier> <!-- Change in natives-linux, native-windows or natives-macos -->
         </dependency>
         <dependency>
             <groupId>com.microsoft.onnxruntime</groupId>
@@ -164,7 +164,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+                <!-- <version>3.11.0</version> -->
 				<configuration>
+                    <!-- <release>23</release> -->
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.springframework.boot</groupId>
@@ -173,6 +175,7 @@
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
+                            <!-- <version>1.18.32</version> -->
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
