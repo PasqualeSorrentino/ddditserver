@@ -17,3 +17,4 @@ public class GremlinConfig {
     @Value("${GREMLIN_KEY}")
     private String key;
 }
+
