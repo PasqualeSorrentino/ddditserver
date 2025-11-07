@@ -19,14 +19,14 @@ class GremlinVersionRepositoryImplTest {
     @Mock
     private GremlinConfig gremlinConfig;
 
-    @Mock
-    private CosmosConfig cosmosConfig;
+    //@Mock
+    //private CosmosConfig cosmosConfig;
 
     @Mock
     private BlobStorageConfig blobStorageConfig;
 
-    @Autowired
-    private CosmosVersionRepositoryImpl cosmosRepository;
+    //@Autowired
+    //private CosmosVersionRepositoryImpl cosmosRepository;
 
     @Autowired
     private BlobStorageVersionRepositoryImpl blobRepository;
