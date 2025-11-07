@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: ddditserver
+
+  cloud:
+    azure:
+      keyvault:
+        secret:
+          enabled: true
+          property-sources:
+            - endpoint: https://dddit-vault.vault.azure.net/
+
+server:
+  port: 8080
