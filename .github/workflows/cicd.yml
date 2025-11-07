@@ -50,7 +50,7 @@ jobs:
           distribution: 'microsoft'
 
       - name: Build and test with Maven
-        run: mvn clean package -DskipsTests
+        run: mvn clean package -DskipTests
 
       - name: Rename JAR
         run: mv target/*.jar target/ddditserver.jar
