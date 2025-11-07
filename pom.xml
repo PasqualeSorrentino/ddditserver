@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.4</version>
+		<version>3.2.12</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>it.unisa</groupId>
@@ -157,6 +157,11 @@
             <artifactId>angus-activation</artifactId>
             <version>2.0.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.azure.spring</groupId>
+            <artifactId>spring-cloud-azure-starter-keyvault-secrets</artifactId>
+            <version>5.12.0</version>
+        </dependency>
     </dependencies>
 
 	<build>
@@ -171,11 +176,12 @@
 						<path>
 							<groupId>org.springframework.boot</groupId>
 							<artifactId>spring-boot-configuration-processor</artifactId>
+                            <version>3.2.12</version>
 						</path>
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
-                            <!-- <version>1.18.32</version> -->
+                            <version>1.18.32</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>

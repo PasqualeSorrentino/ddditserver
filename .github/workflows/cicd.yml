@@ -63,3 +63,42 @@ jobs:
 
       - name: Show build output
         run: ls -lR target
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download JAR artifact
+          name: ddditserver
+          path: .
+
+      - name: Show download directory contents
+        run: ls -lR .
+
+      - name: Copy JAR to Azure VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AZURE_VM_HOST }}
+          username: ${{ secrets.AZURE_VM_USER }}
+          key: ${{ secrets.AZURE_VM_SSH_KEY }}
+          source: "./ddditserver.jar"
+          target: "/home/${{ secrets.AZURE_VM_USER }}/dddit-server/Dddit_Server/ddditserver/"
+
+      - name: Rebuild and restart Docker container
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AZURE_VM_HOST }}
+          username: ${{ secrets.AZURE_VM_USER }}
+          key: ${{ secrets.AZURE_VM_SSH_KEY }}
+          script: |
+            cd /home/${{ secrets.AZURE_VM_USER }}/dddit-server/Dddit_Server/ddditserver/target/
+            echo "Stopping old container..."
+            sudo docker stop ddditserver-container || true
+            echo "Removing old container..."
+            sudo docker rm ddditserver-container || true
+            echo "Rebuilding image..."
+            sudo docker build -t ddditserver:latest .
+            echo "Starting new container..."
+            sudo docker run -d -p 8080:8080 --name ddditserver-container ddditserver:latest
+            echo "Container successfully restarted!"
